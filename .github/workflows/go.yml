@@ -7,7 +7,6 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   test:
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +28,13 @@ jobs:
     - name: Create-DB
       run: docker-compose up -d
       
+    - name: Wait for DB to be ready
+      run: |
+        until docker exec $(docker-compose ps -q postgres) pg_isready -U root; do
+          echo "Waiting for database to be ready..."
+          sleep 1
+        done
+
     - name: Test
       run: go test -v main_test.go
 
